@@ -1,0 +1,8 @@
+{
+    "require": {
+        "tmw/fpdm": "^2.9",
+        "codedge/laravel-fpdf": "^1.10",
+        "setasign/fpdi": "^2.3",
+        "intervention/image": "^2.7"
+    }
+}

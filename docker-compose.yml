@@ -1,0 +1,54 @@
+version: '3'
+
+# internal network for deployment
+networks:
+    laravel:
+
+# three services are needed that all will use the laravel network
+services:
+    nginx:
+        image: nginx:stable-alpine
+        container_name: nginx
+        ports: 
+            - "80:80"             # bings 8088 thorugh to port 80 on nginx
+        volumes:    
+            - ./src:/var/www/html   #binds contents of local src through    
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf  # config specific for nginx
+        depends_on:                 # php and mysql need to be up before the web server is initialized
+            - php
+            - mysql 
+        networks:
+            - laravel
+
+    mysql:
+        image: mysql:5.7.22
+        container_name: mysql
+        restart: unless-stopped     # will retart the container as they don't restart normally
+        ports: 
+            - "4306:3306"           # maps local 4306 to container 3306 (avoids conflict is mysql is already running locally)
+        volumes:
+            - ./mysql:/var/lib/mysql # maps through data for persistence
+        environment:                # env vars for database setup (defaults for laravel)
+            MYSQL_DATABASE: iedb 
+            MYSQL_USER: iedb
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: secret
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        networks:
+            - laravel
+
+    php:
+        build: 
+            context: .
+            dockerfile: Dockerfile
+        container_name: php
+        volumes:
+            - ./src:/var/www/html
+        ports:
+            - "9000:9000"
+        environment:                # add environment variables here
+            APP_URL: http://localhost
+            APP_STORAGE: /var/www/html/storage
+        networks:
+            - laravel
