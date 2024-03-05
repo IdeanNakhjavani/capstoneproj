@@ -1,2 +1,2 @@
-# iedb
-Interior Energy and Air Database Project
+# capstone
+Capstone Project
